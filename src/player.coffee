@@ -14,7 +14,7 @@ Queue = require './queue'
 AudioDevice = require './device'
 
 class Player extends EventEmitter
-    constructor: (@asset) ->
+    constructor: (@asset, @options = {}) ->
         @playing = false
         @buffered = 0
         @currentTime = 0
@@ -32,7 +32,7 @@ class Player extends EventEmitter
             @emit 'buffer', @buffered
 
         @asset.on 'decodeStart', =>
-            @queue = new Queue(@asset)
+            @queue = new Queue(@asset, @options.queue || {})
             @queue.once 'ready', @startPlaying
 
         @asset.on 'format', (@format) =>
