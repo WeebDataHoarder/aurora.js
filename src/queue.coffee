@@ -6,6 +6,7 @@ class Queue extends EventEmitter
         @finished = false
         @buffering = true
         @ended = false
+        @maxQueueSize = @options.maxQueueSize || 0;
 
         @buffers = []
         @asset.on 'data', @write
@@ -16,6 +17,10 @@ class Queue extends EventEmitter
 
     write: (buffer) =>
         @buffers.push buffer if buffer
+
+        if @maxQueueSize
+          while @buffers.length > @maxQueueSize
+            @buffers.shift()
 
         if @buffering
             if @buffers.length >= @readyMark or @ended
