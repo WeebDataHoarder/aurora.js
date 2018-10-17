@@ -151,7 +151,7 @@ class Player extends EventEmitter
                     # if we ran out of data in the middle of
                     # the track, stop the timer but don't change
                     # the playback state
-                    @device.stop()
+                    # @device.stop()
 
             return
 
