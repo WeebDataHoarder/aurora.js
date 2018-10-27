@@ -1,7 +1,8 @@
 EventEmitter = require './core/events'
 
 class Queue extends EventEmitter
-    constructor: (@asset, @options = {}) ->
+    constructor: (@asset, options) ->
+        @options = options || {}
         @readyMark = @options.readyMark || 64
         @finished = false
         @buffering = true

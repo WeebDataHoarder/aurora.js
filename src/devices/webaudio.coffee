@@ -15,10 +15,10 @@ class WebAudioDevice extends EventEmitter
     # so use a lazily created shared context for all playback
     sharedContext = null
 
-    constructor: (@sampleRate, @channels) ->
+    constructor: (@sampleRate, @channels, @options) ->
         @context = sharedContext ?= new AudioContext
         @deviceSampleRate = @context.sampleRate
-        @deviceBufferSize = 512
+        @deviceBufferSize = @options.bufferSize || 4096
 
         # calculate the buffer size to read
         @bufferSize = Math.ceil(@deviceBufferSize / (@deviceSampleRate / @sampleRate) * @channels)

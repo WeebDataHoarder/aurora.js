@@ -7,7 +7,8 @@
 EventEmitter = require './core/events'
 
 class AudioDevice extends EventEmitter
-    constructor: (@sampleRate, @channels) ->
+    constructor: (@sampleRate, @channels, options) ->
+        @options = options || {}
         @playing = false
         @currentTime = 0
         @_lastTime = 0
@@ -16,7 +17,7 @@ class AudioDevice extends EventEmitter
         return if @playing
         @playing = true
         
-        @device ?= AudioDevice.create(@sampleRate, @channels)
+        @device ?= AudioDevice.create(@sampleRate, @channels, @options)
         unless @device
             throw new Error "No supported audio device found."
             
@@ -51,9 +52,9 @@ class AudioDevice extends EventEmitter
     @register: (device) ->
         devices.push(device)
 
-    @create: (sampleRate, channels) ->
+    @create: (sampleRate, channels, options) ->
         for device in devices when device.supported
-            return new device(sampleRate, channels)
+            return new device(sampleRate, channels, options)
 
         return null
         

@@ -32,7 +32,7 @@ class Player extends EventEmitter
             @emit 'buffer', @buffered
 
         @asset.on 'decodeStart', =>
-            @queue = new Queue(@asset, @options.queue || {})
+            @queue = new Queue(@asset, @options.queue)
             @queue.once 'ready', @startPlaying
 
         @asset.on 'format', (@format) =>
@@ -111,7 +111,7 @@ class Player extends EventEmitter
         frame = @queue.read()
         frameOffset = 0
 
-        @device = new AudioDevice(@format.sampleRate, @format.channelsPerFrame)
+        @device = new AudioDevice(@format.sampleRate, @format.channelsPerFrame, @options.device)
         @device.on 'timeUpdate', (@currentTime) =>
             @emit 'progress', @currentTime
 
