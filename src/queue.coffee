@@ -12,6 +12,7 @@ class Queue extends EventEmitter
         @buffers = []
         @asset.on 'data', @write
         @asset.on 'end', =>
+            @buffering = false
             @ended = true
 
         @asset.decodePacket()
@@ -31,7 +32,11 @@ class Queue extends EventEmitter
                 @asset.decodePacket()
 
     read: ->
-        return null if @buffers.length is 0
+        return null if @buffering
+
+        if @buffers.length is 0
+          @buffering = true
+          return null
 
         @asset.decodePacket()
         return @buffers.shift()

@@ -134,24 +134,22 @@ class Player extends EventEmitter
                     frame = @queue.read()
                     frameOffset = 0
 
+            # if we went underflow, fill rest with zeros to keep silence
+            while bufferOffset < buffer.length
+                buffer[bufferOffset++] = 0
+
             # run any applied filters
             for filter in @filters
                 filter.process(buffer)
 
-            # if we've run out of data, pause the player
-            unless frame
-                # if this was the end of the track, make
-                # sure the currentTime reflects that
-                if @queue.ended
-                    @currentTime = @duration
-                    @emit 'progress', @currentTime
-                    @emit 'end'
-                    @stop()
-                else
-                    # if we ran out of data in the middle of
-                    # the track, stop the timer but don't change
-                    # the playback state
-                    # @device.stop()
+            # if we've run out of data
+            # and if this was the end of the track, make
+            # sure the currentTime reflects that
+            if !frame && @queue.ended
+                @currentTime = @duration
+                @emit 'progress', @currentTime
+                @emit 'end'
+                @stop()
 
             return
 
