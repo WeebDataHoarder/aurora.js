@@ -65,31 +65,37 @@
     Decoder.prototype.readChunk = function() {};
 
     Decoder.prototype.decode = function() {
-      var error, offset, packet;
+      var chunk, error, offset;
       this.waiting = !this.receivedFinalBuffer;
       offset = this.bitstream.offset();
       try {
-        packet = this.readChunk();
+        chunk = this.readChunk();
       } catch (_error) {
         error = _error;
         if (!(error instanceof UnderflowError)) {
           this.emit('error', error);
-          return false;
         }
+        return;
       }
-      if (packet) {
-        this.emit('data', packet);
-        if (this.receivedFinalBuffer) {
-          this.emit('end');
-        }
-        return true;
-      } else if (!this.receivedFinalBuffer) {
-        this.bitstream.seek(offset);
-        this.waiting = true;
-      } else {
-        this.emit('end');
-      }
-      return false;
+      return Promise.resolve(chunk).then((function(_this) {
+        return function(packet) {
+          if (packet) {
+            _this.emit('data', packet);
+            if (_this.receivedFinalBuffer) {
+              return _this.emit('end');
+            }
+          } else if (!_this.receivedFinalBuffer) {
+            _this.bitstream.seek(offset);
+            return _this.waiting = true;
+          } else {
+            return _this.emit('end');
+          }
+        };
+      })(this), (function(_this) {
+        return function(error) {
+          return _this.emit('error', error);
+        };
+      })(this));
     };
 
     Decoder.prototype.seek = function(timestamp) {

@@ -43,29 +43,29 @@ class Decoder extends EventEmitter
         offset = @bitstream.offset()
 
         try
-            packet = @readChunk()
+            chunk = @readChunk()
         catch error
-            if error not instanceof UnderflowError
-                @emit 'error', error
-                return false
+            @emit 'error', error if error not instanceof UnderflowError
+            return
 
-        # if a packet was successfully read, emit it
-        if packet
-            @emit 'data', packet
-            if @receivedFinalBuffer
-              @emit 'end'
-            return true
+        Promise.resolve(chunk).then(
+            (packet) =>
+                # if a packet was successfully read, emit it
+                if packet
+                    @emit 'data', packet
+                    if @receivedFinalBuffer
+                      @emit 'end'
 
-        # if we haven't reached the end, jump back and try again when we have more data
-        else if not @receivedFinalBuffer
-            @bitstream.seek offset
-            @waiting = true
+                # if we haven't reached the end, jump back and try again when we have more data
+                else if not @receivedFinalBuffer
+                    @bitstream.seek offset
+                    @waiting = true
 
-        # otherwise we've reached the end
-        else
-            @emit 'end'
-
-        return false
+                # otherwise we've reached the end
+                else
+                    @emit 'end'
+            , (error) => @emit 'error', error
+        )
 
     seek: (timestamp) ->
         # use the demuxer to get a seek point
