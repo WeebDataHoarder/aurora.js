@@ -40,17 +40,11 @@ class Asset extends EventEmitter
     @fromBuffer: (buffer) ->
         return new Asset new BufferSource(buffer)
 
-    start: (decode) ->
+    start: () ->
         return if @active
-
-        @shouldDecode = decode if decode?
-        @shouldDecode ?= true
 
         @active = true
         @source.start()
-
-        if @decoder and @shouldDecode
-            @_decode()
 
     stop: ->
         return unless @active
@@ -144,11 +138,6 @@ class Asset extends EventEmitter
             @emit 'end'
 
         @emit 'decodeStart'
-        @_decode() if @shouldDecode
-
-    _decode: =>
-        continue while @decoder.decode() and @active
-        @decoder.once 'data', @_decode if @active
 
     destroy: ->
         @stop()

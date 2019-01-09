@@ -60,7 +60,7 @@ class Player extends EventEmitter
         return unless @asset
 
         @startedPreloading = true
-        @asset.start(false)
+        @asset.start()
 
     play: ->
         return if @playing
