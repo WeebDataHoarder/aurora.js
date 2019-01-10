@@ -22,7 +22,6 @@
 
     function Asset(source) {
       this.source = source;
-      this._decode = __bind(this._decode, this);
       this.findDecoder = __bind(this.findDecoder, this);
       this.probe = __bind(this.probe, this);
       this.buffered = 0;
@@ -59,21 +58,12 @@
       return new Asset(new BufferSource(buffer));
     };
 
-    Asset.prototype.start = function(decode) {
+    Asset.prototype.start = function() {
       if (this.active) {
         return;
       }
-      if (decode != null) {
-        this.shouldDecode = decode;
-      }
-      if (this.shouldDecode == null) {
-        this.shouldDecode = true;
-      }
       this.active = true;
-      this.source.start();
-      if (this.decoder && this.shouldDecode) {
-        return this._decode();
-      }
+      return this.source.start();
     };
 
     Asset.prototype.stop = function() {
@@ -202,19 +192,7 @@
           return _this.emit('end');
         };
       })(this));
-      this.emit('decodeStart');
-      if (this.shouldDecode) {
-        return this._decode();
-      }
-    };
-
-    Asset.prototype._decode = function() {
-      while (this.decoder.decode() && this.active) {
-        continue;
-      }
-      if (this.active) {
-        return this.decoder.once('data', this._decode);
-      }
+      return this.emit('decodeStart');
     };
 
     Asset.prototype.destroy = function() {

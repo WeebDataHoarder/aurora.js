@@ -86,7 +86,7 @@
         return;
       }
       this.startedPreloading = true;
-      return this.asset.start(false);
+      return this.asset.start();
     };
 
     Player.prototype.play = function() {
