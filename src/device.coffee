@@ -12,50 +12,51 @@ class AudioDevice extends EventEmitter
         @playing = false
         @currentTime = 0
         @_lastTime = 0
-        
+
     start: ->
         return if @playing
         @playing = true
-        
+
         @device ?= AudioDevice.create(@sampleRate, @channels, @options)
         unless @device
             throw new Error "No supported audio device found."
-            
+
         @_lastTime = @device.getDeviceTime()
-            
+
         @_timer = setInterval @updateTime, 200
         @device.on 'refill', @refill = (buffer) =>
             @emit 'refill', buffer
-        
+
     stop: ->
         return unless @playing
         @playing = false
-        
+
         @device.off 'refill', @refill
         clearInterval @_timer
-        
+
     destroy: ->
         @stop()
         @device?.destroy()
-        
+
     seek: (@currentTime) ->
         @_lastTime = @device.getDeviceTime() if @playing
         @emit 'timeUpdate', @currentTime
-        
+
     updateTime: =>
         time = @device.getDeviceTime()
         @currentTime += (time - @_lastTime) / @device.sampleRate * 1000 | 0
         @_lastTime = time
         @emit 'timeUpdate', @currentTime
-        
+
     devices = []
-    @register: (device) ->
-        devices.push(device)
+    @register: (device, weight) ->
+        devices.push([device, weight || 5])
 
     @create: (sampleRate, channels, options) ->
+        devices = devices.sort((a, b) -> a[1] - b[1]).map((element) -> element[0])
         for device in devices when device.supported
             return new device(sampleRate, channels, options)
 
         return null
-        
+
 module.exports = AudioDevice
