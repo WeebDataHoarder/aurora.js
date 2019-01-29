@@ -17,6 +17,8 @@ exports.AudioDevice = require './device'
 exports.Asset = require './asset'
 exports.Player = require './player'
 
+exports.Resampler = require './devices/resampler'
+
 exports.Filter = require './filter'
 exports.VolumeFilter = require './filters/volume'
 exports.BalanceFilter = require './filters/balance'
