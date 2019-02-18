@@ -15,6 +15,10 @@ class WebAudioDevice extends EventEmitter
     # so use a lazily created shared context for all playback
     sharedContext = null
 
+    @deviceSampleRate: ->
+        context = sharedContext ?= new AudioContext
+        context.sampleRate
+
     constructor: (@sampleRate, @channels, @options) ->
         @context = sharedContext ?= new AudioContext
         @deviceSampleRate = @context.sampleRate

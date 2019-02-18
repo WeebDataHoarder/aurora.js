@@ -24,6 +24,12 @@
 
     sharedContext = null;
 
+    WebAudioDevice.deviceSampleRate = function() {
+      var context;
+      context = sharedContext != null ? sharedContext : sharedContext = new AudioContext;
+      return context.sampleRate;
+    };
+
     function WebAudioDevice(sampleRate, channels, options) {
       this.sampleRate = sampleRate;
       this.channels = channels;

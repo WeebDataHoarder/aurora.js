@@ -53,10 +53,18 @@ class AudioDevice extends EventEmitter
         devices.push([device, weight || 5])
 
     @create: (sampleRate, channels, options) ->
-        devices = devices.sort((a, b) -> a[1] - b[1]).map((element) -> element[0])
-        for device in devices when device.supported
-            return new device(sampleRate, channels, options)
+        device = @device()
+        return device && new device(sampleRate, channels, options)
+
+    @device: ->
+        _devices = devices.sort((a, b) -> a[1] - b[1]).map((element) -> element[0])
+        for device in _devices when device.supported
+          return device
 
         return null
+
+    @deviceSampleRate: ->
+        device = @device()
+        device.deviceSampleRate?()
 
 module.exports = AudioDevice
