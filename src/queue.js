@@ -61,7 +61,7 @@
       if (this.buffering) {
         return null;
       }
-      if (this.buffers.length === 0) {
+      if (this.buffers.length === 0 && this.readyMark > 0) {
         this.buffering = true;
         return null;
       }
@@ -69,6 +69,10 @@
       packet = this.buffers.shift();
       this.available -= packet.length;
       return packet;
+    };
+
+    Queue.prototype.disableBuffering = function() {
+      return this.readyMark = 0;
     };
 
     Queue.prototype.reset = function() {

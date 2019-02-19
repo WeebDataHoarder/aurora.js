@@ -41,7 +41,7 @@ class Queue extends EventEmitter
     read: ->
         return null if @buffering
 
-        if @buffers.length is 0
+        if @buffers.length is 0 and @readyMark > 0
             @buffering = true
             return null
 
@@ -50,6 +50,9 @@ class Queue extends EventEmitter
         @available -= packet.length
 
         packet
+
+    disableBuffering: ->
+      @readyMark = 0
 
     reset: ->
         @buffers.length = 0
