@@ -111,7 +111,12 @@ class Player extends EventEmitter
         frame = @queue.read()
         frameOffset = 0
 
-        @device = new AudioDevice(@format.sampleRate, @format.channelsPerFrame, @options.device)
+        @device = new AudioDevice(
+            @format.sampleRate,
+            @format.channelsPerFrame,
+            Object.assign({}, @options.device, queue: @queue)
+        )
+
         @device.on 'timeUpdate', (@currentTime) =>
             @emit 'progress', @currentTime
 

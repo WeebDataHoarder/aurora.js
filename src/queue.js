@@ -19,6 +19,7 @@
       this.buffering = true;
       this.ended = false;
       this.maxQueueSize = this.options.maxQueueSize || 0;
+      this.available = 0;
       this.buffers = [];
       this.asset.on('data', this.write);
       this.asset.on('end', (function(_this) {
@@ -31,25 +32,32 @@
     }
 
     Queue.prototype.write = function(buffer) {
+      var toRemove;
       if (buffer) {
         this.buffers.push(buffer);
+        this.available += buffer.length;
       }
       if (this.maxQueueSize) {
         while (this.buffers.length > this.maxQueueSize) {
-          this.buffers.shift();
+          toRemove = this.buffers.shift();
+          this.available -= toRemove.length;
         }
       }
       if (this.buffering) {
         if (this.buffers.length >= this.readyMark || this.ended) {
           this.buffering = false;
-          return this.emit('ready');
+          this.emit('ready');
+          return this.emit('data');
         } else {
           return this.asset.decodePacket();
         }
+      } else {
+        return this.emit('data');
       }
     };
 
     Queue.prototype.read = function() {
+      var packet;
       if (this.buffering) {
         return null;
       }
@@ -58,11 +66,14 @@
         return null;
       }
       this.asset.decodePacket();
-      return this.buffers.shift();
+      packet = this.buffers.shift();
+      this.available -= packet.length;
+      return packet;
     };
 
     Queue.prototype.reset = function() {
       this.buffers.length = 0;
+      this.available = 0;
       this.buffering = true;
       return this.asset.decodePacket();
     };

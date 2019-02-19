@@ -152,7 +152,9 @@
       var frame, frameOffset;
       frame = this.queue.read();
       frameOffset = 0;
-      this.device = new AudioDevice(this.format.sampleRate, this.format.channelsPerFrame, this.options.device);
+      this.device = new AudioDevice(this.format.sampleRate, this.format.channelsPerFrame, Object.assign({}, this.options.device, {
+        queue: this.queue
+      }));
       this.device.on('timeUpdate', (function(_this) {
         return function(currentTime) {
           _this.currentTime = currentTime;

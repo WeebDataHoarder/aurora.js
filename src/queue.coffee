@@ -8,6 +8,7 @@ class Queue extends EventEmitter
         @buffering = true
         @ended = false
         @maxQueueSize = @options.maxQueueSize || 0;
+        @available = 0
 
         @buffers = []
         @asset.on 'data', @write
@@ -18,31 +19,41 @@ class Queue extends EventEmitter
         @asset.decodePacket()
 
     write: (buffer) =>
-        @buffers.push buffer if buffer
+        if buffer
+            @buffers.push buffer
+            @available += buffer.length
 
         if @maxQueueSize
-          while @buffers.length > @maxQueueSize
-            @buffers.shift()
+            while @buffers.length > @maxQueueSize
+                toRemove = @buffers.shift()
+                @available -= toRemove.length
 
         if @buffering
             if @buffers.length >= @readyMark or @ended
                 @buffering = false
                 @emit 'ready'
+                @emit 'data'
             else
                 @asset.decodePacket()
+        else
+          @emit 'data'
 
     read: ->
         return null if @buffering
 
         if @buffers.length is 0
-          @buffering = true
-          return null
+            @buffering = true
+            return null
 
         @asset.decodePacket()
-        return @buffers.shift()
+        packet = @buffers.shift()
+        @available -= packet.length
+
+        packet
 
     reset: ->
         @buffers.length = 0
+        @available = 0
         @buffering = true
         @asset.decodePacket()
 
