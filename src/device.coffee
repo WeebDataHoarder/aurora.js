@@ -23,7 +23,7 @@ class AudioDevice extends EventEmitter
 
         @_lastTime = @device.getDeviceTime()
 
-        @_timer = setInterval @updateTime, 200
+        @_timer = setInterval @updateTime, 30
         @device.on 'refill', @refill = (buffer) =>
             @emit 'refill', buffer
 
